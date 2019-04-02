@@ -3,7 +3,7 @@
 #include <stdbool.h>   // true
 #include <stdio.h>     // stdin, stderr, getline
 #include <stdlib.h>    // free, setenv, unsetenv, getenv
-#include <string.h>    // strerror, strcmp, strdup, strsep, strlen
+#include <string.h>    // strerror, strcmp, strdup, strsep, strlen, strsignal
 #include <sys/types.h> // pid_t
 #include <sys/wait.h>  // waitpid
 #include <unistd.h>    // fork, execvp, getcwd
@@ -101,7 +101,13 @@ void launch(char const *program, char *const argv[]) {
             error(0, errno, "Failed to wait for child %d", pid);
             return;
         }
-        printf("Status information: %d\n", wstatus);
+        if (WIFEXITED(wstatus)) {
+            printf("Process exited with error code %d\n", WEXITSTATUS(wstatus));
+        } else if (WIFSIGNALED(wstatus)) {
+            printf("Process was terminated by signal %d: %s\n", WTERMSIG(wstatus), strsignal(WTERMSIG(wstatus)));
+        } else {
+            error(EXIT_FAILURE, 0, "waitpid should have waited for the process termination, but it didn't");
+        }
     }
 }
 
