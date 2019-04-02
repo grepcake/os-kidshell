@@ -90,10 +90,8 @@ void launch(char const *program, char *const argv[]) {
         return;
     }
     if (pid == 0) {
-        int ec = execvp(program, argv);
-        if (ec == -1) {
+        if (execvp(program, argv) == -1) {
             error(EXIT_FAILURE, errno, "Failed to exec %s", program);
-            return;
         }
     } else {
         int wstatus;
