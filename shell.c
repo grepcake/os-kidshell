@@ -6,10 +6,8 @@
 #include <string.h>    // strerror, strcmp, strdup, strsep, strlen
 #include <sys/types.h> // pid_t
 #include <sys/wait.h>  // waitpid
-#include <unistd.h>    // fork, execve, getcwd
+#include <unistd.h>    // fork, execvp, getcwd
 #include <wordexp.h>   //
-
-extern char **environ;
 
 #define MAX_PATH_AT_PROMPT 256
 
@@ -92,7 +90,7 @@ void launch(char const *program, char *const argv[]) {
         return;
     }
     if (pid == 0) {
-        int ec = execve(program, argv, environ);
+        int ec = execvp(program, argv);
         if (ec == -1) {
             error(EXIT_FAILURE, errno, "Failed to exec %s", program);
             return;
